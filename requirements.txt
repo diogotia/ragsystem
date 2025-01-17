@@ -1,0 +1,15 @@
+flask>=2.0.0
+flask-cors>=4.0.0
+gradio>=3.0.0
+pymongo
+python-dotenv
+transformers
+langchain-core
+torch
+tensorflow
+flax
+tf-keras
+gradio
+autogen
+requests>=2.31.0
+gunicorn

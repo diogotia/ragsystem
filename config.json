@@ -1,0 +1,6 @@
+{
+  "model_name_or_path": "gpt2",
+  "mongo_uri": "mongodb://localhost:27017/",
+  "db_name": "queryDB",
+  "collection_name": "queries"
+}

@@ -1,0 +1,8 @@
+flask>=2.0.0
+flask-cors>=4.0.0
+pymongo
+python-dotenv
+transformers
+langchain-core
+requests>=2.31.0
+tensorflow-cpu 
