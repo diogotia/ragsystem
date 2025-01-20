@@ -3,6 +3,7 @@ import logging
 import warnings
 from typing import Dict, List, Optional, Union
 from functools import lru_cache
+from pathlib import Path
 
 import gridfs
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
@@ -32,13 +33,36 @@ class ModelManager:
     
     def _initialize_models(self):
         """Initialize the models lazily."""
-        self.model_name_or_path = config['model_name_or_path']
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path)
-        self.model = AutoModelForCausalLM.from_pretrained(self.model_name_or_path)
-        
-        # Initialize sentiment analyzer
-        self.sentiment_model_name = "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
-        self.sentiment_analyzer = pipeline("sentiment-analysis", model=self.sentiment_model_name)
+        try:
+            use_local = config['use_local_model']
+            
+            if use_local:
+                # Try loading local model
+                model_path = Path(config['model_name_local'])
+                if not ((model_path / "pytorch_model.bin").exists() or 
+                       (model_path / "model.safetensors").exists()):
+                    logger.warning(f"Local model not found at {model_path}, falling back to remote model")
+                    use_local = False
+                else:
+                    logger.info(f"Loading model from local path: {model_path}")
+                    self.tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+                    self.model = AutoModelForCausalLM.from_pretrained(str(model_path))
+            
+            if not use_local:
+                # Load from HuggingFace
+                remote_model = config['model_name_remote']
+                logger.info(f"Loading model from HuggingFace: {remote_model}")
+                self.tokenizer = AutoTokenizer.from_pretrained(remote_model)
+                self.model = AutoModelForCausalLM.from_pretrained(remote_model)
+            
+            # Initialize sentiment analyzer (always from HuggingFace)
+            self.sentiment_model_name = "distilbert-base-uncased-finetuned-sst-2-english"
+            self.sentiment_analyzer = pipeline("sentiment-analysis", model=self.sentiment_model_name)
+            
+            logger.info("Model initialization completed successfully")
+        except Exception as e:
+            logger.error(f"Error initializing models: {e}")
+            raise
 
 # Initialize prompts
 PROMPTS = {

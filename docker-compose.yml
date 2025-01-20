@@ -8,11 +8,13 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/
       - DB_NAME=queryDB
+      - MODEL_PATH=/app/models/gpt2
     depends_on:
       - mongodb
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+      - model_data:/app/models
 
   mongodb:
     image: mongo:latest
@@ -22,4 +24,5 @@ services:
       - mongodb_data:/data/db
 
 volumes:
-  mongodb_data: 
+  mongodb_data:
+  model_data: 

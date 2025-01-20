@@ -1,33 +1,42 @@
-FROM python:3.12-slim
+FROM mongo:5.0
 
-WORKDIR /app
-
-# Install system dependencies
+# Install Python and pip
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    python3 \
+    python3-pip \
+    python3-venv \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements/prod.txt /app/requirements.txt
+# Create and activate virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Set up Python environment
+WORKDIR /app
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . /app/
+COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/data /app/logs \
-    && chmod -R 755 /app/data /app/logs
+# Copy MongoDB initialization script
+COPY init-mongo.js /docker-entrypoint-initdb.d/
 
-# Environment variables
-ENV MONGO_URI=mongodb://mongodb:27017/
+# Create directories for models and logs
+RUN mkdir -p /app/models /app/logs
+
+# Set environment variables
+ENV MONGO_URI=mongodb://localhost:27017/
 ENV DB_NAME=queryDB
-ENV API_PORT=5000
-ENV API_HOST=0.0.0.0
-ENV DEBUG_MODE=False
+ENV DEBUG_MODE=true
 ENV LOG_LEVEL=INFO
 
-# Expose port
-EXPOSE 5000
+# Update entrypoint script
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"] 
+EXPOSE 5000 27017
+
+ENTRYPOINT ["/app/entrypoint.sh"] 
