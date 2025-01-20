@@ -9,7 +9,6 @@ torch
 tensorflow
 flax
 tf-keras
-gradio
 autogen
 requests>=2.31.0
 gunicorn

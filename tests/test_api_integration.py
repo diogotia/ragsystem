@@ -1,9 +1,32 @@
 import requests
 import pytest
 import time
+import os
 
-# Base URL for the API
-API_URL = "http://127.0.0.1:5000"
+# Base URL for the API - configurable via environment variables
+API_HOST = os.getenv('API_HOST', 'localhost')
+API_PORT = os.getenv('API_PORT', '5002')  # Default to Docker port
+API_URL = f"http://{API_HOST}:{API_PORT}"
+
+print(f"Running tests against API at: {API_URL}")
+
+@pytest.fixture(scope="session", autouse=True)
+def wait_for_api():
+    """Wait for API to be ready before running tests"""
+    max_retries = 30
+    retry_interval = 1
+
+    for _ in range(max_retries):
+        try:
+            response = requests.get(f"{API_URL}/api/v1/endpoints")
+            if response.status_code == 200:
+                print("API is ready!")
+                return
+        except requests.exceptions.ConnectionError:
+            print("Waiting for API to be ready...")
+            time.sleep(retry_interval)
+    
+    pytest.fail("API did not become ready in time")
 
 def test_endpoints_listing():
     """Test the endpoints listing endpoint"""

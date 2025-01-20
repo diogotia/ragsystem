@@ -1,16 +1,11 @@
-import platform
+#!/usr/bin/env python3
 from rag.com.app import app
-from rag.com.config import API_HOST, API_PORT, DEBUG_MODE
+from rag.com.config import SERVER_CONFIG
 
-def run_server():
-    """Run the server based on the operating system"""
-    if platform.system() == 'Windows':
-        from waitress import serve
-        print(f"Starting Waitress server on http://{API_HOST}:{API_PORT}")
-        serve(app, host=API_HOST, port=API_PORT)
-    else:
-        print(f"Starting Flask server on http://{API_HOST}:{API_PORT}")
-        app.run(host=API_HOST, port=API_PORT, debug=DEBUG_MODE)
-
-if __name__ == "__main__":
-    run_server()
+if __name__ == '__main__':
+    app.run(
+        host=SERVER_CONFIG['host'],
+        port=SERVER_CONFIG['port'],
+        debug=SERVER_CONFIG['debug'],
+        threaded=SERVER_CONFIG['threaded']
+    )
