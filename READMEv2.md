@@ -132,6 +132,14 @@ sudo docker stop mongodb my-python-app-container && sudo docker rm mongodb my-py
 
 # Start and run containers with volumes in one command 
 sudo docker run -d --name my-python-app-container --network host -e MONGO_URI=mongodb://127.0.0.1:27017/ -e DB_NAME=queryDB -e API_PORT=5002 -e DEBUG_MODE=true -v $(pwd)/models:/app/models -v $(pwd)/logs:/app/logs my-python-app****
+
+# test infrastructure 
+./entrypoint.sh                             
+# result  "{"t":{"$date":"2025-03-03T10:42:46.173+02:00"},"s":"I",  "c":"CONTROL",  "id":23138,   "ctx":"initandlisten","msg":"Shutting down","attr":{"exitCode":48}}
+MongoDB is ready!
+
+➜  ragsystemgpt2 git:(main) ✗ ./entrypoint.sh          
+
 ```
 
 #### 2. Development Deployment
@@ -167,7 +175,7 @@ response = requests.post('http://localhost:5000/api/v1/generate', json=query)
 print(response.json())
 
 # Script for auto setup and run
-python3 init_local_db.py
+#python3 init_local_db.py
 ```
 
 ### 3. Document Search

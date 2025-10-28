@@ -47,14 +47,22 @@ class ModelManager:
                     logger.info(f"Loading model from local path: {model_path}")
                     self.tokenizer = AutoTokenizer.from_pretrained(str(model_path))
                     self.model = AutoModelForCausalLM.from_pretrained(str(model_path))
-            
+        # Ensure pad_token is set for models that don't have one by default
+                if self.tokenizer.pad_token is None:
+                   self.tokenizer.pad_token = self.tokenizer.eos_token
+                if self.model.config.pad_token_id is None:
+                   self.model.config.pad_token_id = self.tokenizer.eos_token_id
+
+
+
             if not use_local:
                 # Load from HuggingFace
                 remote_model = config['model_name_remote']
                 logger.info(f"Loading model from HuggingFace: {remote_model}")
                 self.tokenizer = AutoTokenizer.from_pretrained(remote_model)
                 self.model = AutoModelForCausalLM.from_pretrained(remote_model)
-            
+
+
             # Initialize sentiment analyzer (always from HuggingFace)
             self.sentiment_model_name = "distilbert-base-uncased-finetuned-sst-2-english"
             self.sentiment_analyzer = pipeline("sentiment-analysis", model=self.sentiment_model_name)

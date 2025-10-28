@@ -1,7 +1,7 @@
-flask>=2.0.0
+flask==2.3.2
 flask-cors>=4.0.0
 gradio>=3.0.0
-pymongo
+pymongo==4.3.3
 python-dotenv
 transformers
 langchain-core
@@ -11,4 +11,4 @@ flax
 tf-keras
 autogen
 requests>=2.31.0
-gunicorn
+gunicorn==20.1.0
